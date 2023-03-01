@@ -91,11 +91,11 @@ DATABASES = {
         'PASSWORD':config('DB_PASSWORD'), 
     }
 }
-cloudinary = {
-  'cloud_name' : config ('cloud_name'), 
-  'api_key'  : config('api_key'), 
-  'api_secret' : config ('api_secret') 
-}
+cloudinary.config(
+    cloud_name=config('CD_NAME'),
+    api_key=config('CD_API'),
+    api_secret=config('CD_SECRET'),
+)
 
 
 # Password validation
@@ -135,9 +135,16 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/3.2/howto/static-files/
 
 STATIC_URL = '/static/'
+MEDIA_URL = '/images/'
+
 STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, 'static')
+    BASE_DIR / 'static',
+    BASE_DIR / 'frontend/build/static'
 ]
+
+
+MEDIA_ROOT = BASE_DIR / 'static/images'
+STATIC_ROOT = BASE_DIR / 'staticfiles'
 # Default primary key field type
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
 

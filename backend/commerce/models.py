@@ -3,10 +3,10 @@ from django.contrib.auth.models import User
 from cloudinary.models import CloudinaryField
 # Create your models here.
 
-class product(models.Model):
+class Product(models.Model):
     user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
     name = models.CharField(max_length=200, null=True, blank=True)
-    image = CloudinaryField('image',unique=True, null=True)
+    image = models.ImageField(null=True, blank=True)
     brand = models.CharField(max_length=200, null=True, blank=True)
     category = models.CharField(max_length=200, null=True, blank=True)
     description = models.TextField(null=True, blank=True)
@@ -20,7 +20,7 @@ class product(models.Model):
     def __str__(self):
         return self.name
 class Review(models.Model):
-    product = models.ForeignKey(product, on_delete=models.SET_NULL, null=True)
+    product = models.ForeignKey(Product, on_delete=models.SET_NULL, null=True)
     user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
     name = models.CharField(max_length=200, null=True, blank=True)
     rating = models.IntegerField(null=True,blank=True,default=0)
@@ -47,12 +47,12 @@ class Order(models.Model):
         return str(self.createdAt)
     
 class OrderItem(models.Model):
-    product = models.ForeignKey(product, on_delete=models.SET_NULL, null=True)
+    product = models.ForeignKey(Product, on_delete=models.SET_NULL, null=True)
     order = models.ForeignKey(Order, on_delete=models.SET_NULL, null=True)
     name = models.CharField(max_length=200, null=True, blank=True)
     qty = models.IntegerField(null=True,blank=True,default=0)
     price = models.DecimalField(decimal_places=2,max_digits=7, null=True, blank=True)
-    image = CloudinaryField('image',unique=True, null=True)
+    image = models.ImageField(null=True, blank=True)
     _id = models.AutoField(primary_key=True,editable=False)
 
     def __str__(self):

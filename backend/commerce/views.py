@@ -6,6 +6,9 @@ from rest_framework import authentication, permissions
 from django.contrib.auth.models import User
 from django.http import JsonResponse
 from .products import products
+from .models import Product
+from .serializers import ProductSerializer
+
 
 
 
@@ -27,14 +30,13 @@ def getRoutes(request):
     return Response(routes)
 @api_view(['GET'])
 def getProducts(request):
-    return Response(products)
+    products = Product.objects.all()
+    serializer = ProductSerializer(products, many=True)
+    return Response(serializer.data)
 
 @api_view(['GET'])
 def getProduct(request,pk):
-    product = None
-    for i in products:
-        if i['_id'] == pk:
-            product = i
-            break
-    return Response(product)
+    product = Product.objects.get(_id=pk)
+    serializer = ProductSerializer(product, many=False)
+    return Response(serializer.data)
 
