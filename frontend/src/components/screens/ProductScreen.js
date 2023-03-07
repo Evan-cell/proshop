@@ -1,22 +1,28 @@
 import React,{useState,useEffect} from 'react'
 import {Link} from 'react-router-dom'
+import {useDispatch,useSelector} from 'react-redux'
 import products from '../products'
-import {Row,Col,Image,ListGroup,Button,Card} from 'react-bootstrap'
+import {Row,Col,Image,Form,ListGroup,Button,Card} from 'react-bootstrap'
 import Rating from '../Rating'
-import axios from 'axios'
+import { listProductsDetails } from '../../actions/ProductsActions'
+import Loader from '../Loader'
+import Message from '../Message'
 function ProductScreen({match}) {
-    const [product,setProduct] = useState([])
+    const [qty, setQty] = useState(1)
+
+
+   const dispatch = useDispatch()
+   const productDetails = useSelector(state => state.productDetails)
+   const { loading,error,product} = productDetails
 
     useEffect(() => {
-      async function fetchProduct(){
-        const { data } = await axios.get(`http://127.0.0.1:8000/api/products/${match.params.id}`)
-        setProduct(data)
-      }
-      fetchProduct()
+        dispatch(listProductsDetails(match.params.id))
     }, [])
+    
   return (
     <div>
         <Link to='/' className='btn btn-light my-3 rounded'>Go back</Link>
+        {loading ? <Loader /> : error ? <Message variant='danger'>{error}</Message>  : 
         <Row>
             <Col md={6}>
                 <Image src={product.image} alt={product.name} fluid/> 
@@ -56,6 +62,15 @@ function ProductScreen({match}) {
                                 </Col>
                             </Row>
                         </ListGroup.Item>
+                        {product.countInStock > 0 && (
+                            <ListGroup.Item>
+                                <Row>
+                                    <Col>Qty</Col>
+                                    <Col>
+                                    </Col>
+                                </Row>
+                            </ListGroup.Item>
+                        )}
                         <ListGroup.Item>
                             <Button className='btn-block' type='button' disabled={product.countInStock === 0}>Add To Cart</Button>
                         </ListGroup.Item>
@@ -63,6 +78,7 @@ function ProductScreen({match}) {
                 </Card>
             </Col>
         </Row>
+}
     </div>
   )
 }
