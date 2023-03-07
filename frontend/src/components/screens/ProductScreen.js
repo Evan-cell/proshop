@@ -7,7 +7,7 @@ import Rating from '../Rating'
 import { listProductsDetails } from '../../actions/ProductsActions'
 import Loader from '../Loader'
 import Message from '../Message'
-function ProductScreen({match}) {
+function ProductScreen({match,history}) {
     const [qty, setQty] = useState(1)
 
 
@@ -17,7 +17,11 @@ function ProductScreen({match}) {
 
     useEffect(() => {
         dispatch(listProductsDetails(match.params.id))
-    }, [])
+    }, [dispatch,match])
+
+    const addToCartHandler =  () => {
+        history.push(`/cart/${match.params.id} ? qty=${qty}`)
+    }
     
   return (
     <div>
@@ -66,13 +70,26 @@ function ProductScreen({match}) {
                             <ListGroup.Item>
                                 <Row>
                                     <Col>Qty</Col>
-                                    <Col>
+                                    <Col xm='auto' className='my-1'>
+                                    <Form.Control
+                                    as='select'
+                                    value={qty}
+                                    onChange = { (e) => setQty(e.target.value)}
+                                    >
+                                        {[...Array(product.countInStock).keys()].map((x)=>(
+                                            <option key={x+1} value={x+1}>
+                                                {x+1}
+                                            </option>
+                                        ))}                                        
+                                    </Form.Control>
                                     </Col>
                                 </Row>
                             </ListGroup.Item>
                         )}
                         <ListGroup.Item>
-                            <Button className='btn-block' type='button' disabled={product.countInStock === 0}>Add To Cart</Button>
+                            <Button 
+                            onClick={addToCartHandler}
+                            className='btn-block' type='button' disabled={product.countInStock === 0}>Add To Cart</Button>
                         </ListGroup.Item>
                     </ListGroup>
                 </Card>
