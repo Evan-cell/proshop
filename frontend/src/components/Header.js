@@ -24,7 +24,7 @@ function Header() {
           
            
             
-            <Nav.Link ><i className='fas fa-user'></i>Login</Nav.Link>
+            <Nav.Link as={Link} to='/login'><i className='fas fa-user'></i>Login</Nav.Link>
            
             
           </Nav>
