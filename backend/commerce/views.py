@@ -7,9 +7,9 @@ from rest_framework import authentication, permissions
 from django.contrib.auth.models import User
 from django.http import JsonResponse
 from .products import products
-from .models import Product
+from .models import Product,Order,OrderItem,ShippingAdress
 from django.contrib.auth.hashers import make_password
-from .serializers import ProductSerializer,UserSerializer,UserSerializerWithToken
+from .serializers import ProductSerializer,UserSerializer,UserSerializerWithToken,OrderSerializer
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework import status
@@ -51,6 +51,50 @@ def getUserProfile(request):
     
     serializer = UserSerializer(user, many=False)
     return Response(serializer.data)
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def addOrderItems(request):
+    user = request.user
+    data = request.data
+    orderItems = data['orderItems']
+
+    if orderItems and len(orderItems) == 0:
+        return Response({'detail':'no order Items'},status=status.HTTP_400_BAD_REQUEST)
+    else:
+        # order
+        order = Order.objects.create(
+            user = user,
+            paymentMethod = data['paymentMethod'],
+            taxPrice = data['taxPrice'],
+            shippingPrice = data['shippingPrice'],
+            totalPrice = data['totalPrice']
+        )
+        # shipping
+        shipping = ShippingAdress.objects.create(
+            order=order,
+            city = data['shippingAdress']['city'],
+            adress = data['shippingAdress']['adress'],
+            postalCode = data['shippingAdress']['postalCode'],
+            country = data['shippingAdress']['country'],
+        )
+        #orderItem
+        for i in orderItems:
+            product = Product.objects.get(_id=i['product'])
+
+            item = OrderItem.objects.create(
+                product=product,
+                order=order,
+                name=product.name,
+                qty=i['qty'],
+                price=i['price'],
+                image=product.image.url,
+            ) 
+            # order stock
+            product.countInStock -= item.qty
+            product.save()
+    serializer = OrderSerializer(order,many=True)        
+    return(serializer.data)
 
 @api_view(['GET'])
 @permission_classes([IsAdminUser])
